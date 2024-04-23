@@ -1,27 +1,25 @@
-#!/usr/bin/env python3
-# Fabfile defining functions to pack, deploy, and clean the
-# current directory to a remote server.
-from fabric import task
+# Setup New Ubuntu server with nginx
 
+exec { 'update system':
+        command => '/usr/bin/apt-get update',
+}
 
-@task
-def pack(c):
-    """Create a tar gzipped archive of the current directory."""
-    c.run("touch holbertonwebapp.tar.gz")
-    c.run("tar --exclude='*.tar.gz' -cvzf holbertonwebapp.tar.gz .")
+package { 'nginx':
+	ensure => 'installed',
+	require => Exec['update system']
+}
 
+file {'/var/www/html/index.html':
+	content => 'Hello World!'
+}
 
-@task
-def deploy(c):
-    """Upload the archive to the remote server in the /tmp/ directory."""
-    c.user = "ubuntu"
-    c.put("holbertonwebapp.tar.gz", "/tmp")
-    c.run("mkdir /tmp/holbertonwebapp")
-    c.run("tar -C /tmp/holbertonwebapp -xzvf /tmp/holbertonwebapp.tar.gz")
+exec {'redirect_me':
+	command => 'sed -i "24i\	rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;" /etc/nginx/sites-available/default',
+	provider => 'shell'
+}
 
-
-@task
-def clean(c):
-    """Deletes holbertonwebapp.tar.gz on the local machine."""
-    c.run("rm holbertonwebapp.tar.gz")
+service {'nginx':
+	ensure => running,
+	require => Package['nginx']
+}
 
