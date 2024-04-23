@@ -7,16 +7,19 @@
 apt-get update
 apt-get install -y nginx
 
-mkdir /etc/nginx/html
-touch /etc/nginx/html/index.html
-echo "Holberton School" > /etc/nginx/html/index.html
-printf %s "server {
-     listen      80 default_server;
-     listen      [::]:80 default_server;
-     root        /etc/nginx/html;
-     index       index.html index.htm;
-}
-" > /etc/nginx/sites-available/default
+# Create a default index.html file containing "Hello World!"
+echo "Hello World!" > /usr/share/nginx/html/index.html
 
-service nginx restart
+# Check if nginx is already running, if not start it
+if ! pgrep -x "nginx" > /dev/null
+then
+    /usr/sbin/nginx
+fi
+
+# Check if nginx is listening on port 80, if not restart it
+if ! nc -z localhost 80
+then
+    killall nginx
+    /usr/sbin/nginx
+fi
 
