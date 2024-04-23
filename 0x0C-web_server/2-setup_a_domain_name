@@ -1,2 +1,17 @@
 #!/usr/bin/env bash
-bdbnb.site
+# Replace 'your_web_server_ip' with the actual IP address of your web-01 server
+web_server_ip="your_web_server_ip"
+
+# Update the A record for the domain 'webserver.tech' to point to your web server IP address
+echo "Updating DNS records..."
+curl -X PUT "https://api.dnsprovider.com/dns/records" \
+     -H "Authorization: Bearer YOUR_API_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+            "domain": "webserver.tech",
+            "type": "A",
+            "value": "'"$web_server_ip"'"
+         }'
+
+echo "DNS records updated successfully."
+
